@@ -1,0 +1,16 @@
+# تنزيل برنامج playit
+Invoke-WebRequest -Uri "https://agent/releases/download/v0.15.26/playit-windows-x86_64-signed.exe" -OutFile "$env:USERPROFILE\playit.exe"
+Start-Sleep -Seconds 5  # الانتظار قليلاً حتى يكتمل التنزيل
+
+# تمكين RDP
+Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name "fDenyTSConnections" -Value 0
+Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
+Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -Name "UserAuthentication" -Value 1
+
+# إنشاء مستخدم جديد باسم runneradmin مع كلمة مرور
+Set-LocalUser -Name "runneradmin" -Password (ConvertTo-SecureString "adminpassword" -AsPlainText -Force)
+
+# تشغيل برنامج playit
+$env:PLAYIT_AUTH_KEY = "secrets.PL"  # قم باستبدال secrets.PL بالقيمة الفعلية
+Start-Process -FilePath "$env:USERPROFILE\playit.exe" -ArgumentList "--secret $env:PLAYIT_AUTH_KEY" -NoNewWindow -Wait
+Start-Process -FilePath "$env:USERPROFILE\playit.exe" -NoNewWindow
